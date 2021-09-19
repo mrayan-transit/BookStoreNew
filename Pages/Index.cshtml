@@ -1,0 +1,54 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Marvell Book Store";
+}
+
+<div class="row">
+    @foreach (var book in Model.BooksData.Items)
+    {
+        <div class="col-3">
+            <div class="card">
+                <img src="~/@(!string.IsNullOrEmpty(book.CoverUrl) ? book.CoverUrl : "img/book-cover.png")" class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">@book.Name</h5>
+                    <h6 class="card-subtitle">@book.PublishDate.ToString("MMMM yyyy")</h6>
+                </div>
+                <div class="card-footer">
+                    <a asp-page="Edit" asp-route-id="@book.Id" class="btn btn-primary">Edit</a>
+                    <button class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div class="text-center">
+    <nav aria-label="...">
+        <ul class="pagination">
+            @{
+                string url = Request.Path + "?" + string.Join("", Request
+                    .Query
+                    .Where(x => x.Key != "page" && x.Key != "page_size")
+                    .Select(x => $"{x.Key}={x.Value}&"));
+
+                if (Model.PageSize.HasValue)
+                    url += $"page_size={Model.PageSize.Value}&";
+            }
+            
+            @for (int i = 1; i <= Model.BooksData.TotalPagesCount; i++)
+            {
+                string pageUrl = url + (i > 1 ? $"page={i}&" : "");
+
+                <li class="page-item @(Model.PageNumber == i ? "active" : "")">
+                    <a class="page-link" 
+                        href="@pageUrl.Remove(pageUrl.Length - 1, 1)">
+                    @i</a>
+                </li>
+            }
+            
+            @* <li class="page-item">
+            <a class="page-link" href="#">Next</a>
+            </li> *@
+        </ul>
+    </nav>
+</div>
